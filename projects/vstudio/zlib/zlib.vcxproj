@@ -185,7 +185,7 @@
       <Optimization>Disabled</Optimization>
       <BrowseInformation>true</BrowseInformation>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>$(DisableSpecificWarnings);4127;4131;4242;4244;5045</DisableSpecificWarnings>
+      <DisableSpecificWarnings>$(DisableSpecificWarnings);4127;4131;4242;4244;5045;4061</DisableSpecificWarnings>
       <TreatWarningAsError>$(TreatWarningAsError)</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -219,7 +219,7 @@
       <Optimization>Disabled</Optimization>
       <BrowseInformation>true</BrowseInformation>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>$(DisableSpecificWarnings);4127;4131;4242;4244;5045</DisableSpecificWarnings>
+      <DisableSpecificWarnings>$(DisableSpecificWarnings);4127;4131;4242;4244;5045;4061</DisableSpecificWarnings>
       <TreatWarningAsError>$(TreatWarningAsError)</TreatWarningAsError>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -262,7 +262,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <BrowseInformation>true</BrowseInformation>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>$(DisableSpecificWarnings);4127;4131;4242;4244;5045</DisableSpecificWarnings>
+      <DisableSpecificWarnings>$(DisableSpecificWarnings);4127;4131;4242;4244;5045;4061</DisableSpecificWarnings>
       <TreatWarningAsError>$(TreatWarningAsError)</TreatWarningAsError>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;Z_SOLO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -310,7 +310,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <BrowseInformation>true</BrowseInformation>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>$(DisableSpecificWarnings);4127;4131;4242;4244;5045</DisableSpecificWarnings>
+      <DisableSpecificWarnings>$(DisableSpecificWarnings);4127;4131;4242;4244;5045;4061</DisableSpecificWarnings>
       <TreatWarningAsError>$(TreatWarningAsError)</TreatWarningAsError>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;Z_SOLO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>

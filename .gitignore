@@ -39,3 +39,4 @@ FrameworkTests/TestData/export/
 Debug Library
 /projects/vstudio/libpng/x64/Release Library
 /projects/vstudio/zlib/x64/Release Library/*.sbr
+*.recipe
