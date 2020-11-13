@@ -40,3 +40,4 @@ Debug Library
 /projects/vstudio/libpng/x64/Release Library
 /projects/vstudio/zlib/x64/Release Library/*.sbr
 *.recipe
+/projects/vstudio/zlib/x64/Release Library/zlib.vcxproj.FileListAbsolute.txt
