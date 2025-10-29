@@ -17,27 +17,10 @@
 
 #include "pngpriv.h"
 
-#ifdef PNG_ARM_NEON_IMPLEMENTATION
-#  if PNG_ARM_NEON_IMPLEMENTATION == 1
-#    define PNG_ARM_NEON_INTRINSICS_AVAILABLE
-#    if defined(_MSC_VER) && !defined(__clang__) && defined(_M_ARM64)
-#      include <arm64_neon.h>
-#    else
-#      include <arm_neon.h>
-#    endif
-#  endif
-#endif
-
-#ifdef PNG_RISCV_RVV_IMPLEMENTATION
-#  if PNG_RISCV_RVV_IMPLEMENTATION == 1
-#    define PNG_RISCV_RVV_INTRINSICS_AVAILABLE
-#  endif
-#endif
-
 #ifdef PNG_READ_SUPPORTED
 
 /* Set the action on getting a CRC error for an ancillary or critical chunk. */
-void PNGAPI
+void
 png_set_crc_action(png_structrp png_ptr, int crit_action, int ancil_action)
 {
    png_debug(1, "in png_set_crc_action");
@@ -138,7 +121,7 @@ png_rtran_ok(png_structrp png_ptr, int need_IHDR)
 
 #ifdef PNG_READ_BACKGROUND_SUPPORTED
 /* Handle alpha and tRNS via a background color */
-void PNGFAPI
+void
 png_set_background_fixed(png_structrp png_ptr,
     png_const_color_16p background_color, int background_gamma_code,
     int need_expand, png_fixed_point background_gamma)
@@ -168,7 +151,7 @@ png_set_background_fixed(png_structrp png_ptr,
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_background(png_structrp png_ptr,
     png_const_color_16p background_color, int background_gamma_code,
     int need_expand, double background_gamma)
@@ -184,7 +167,7 @@ png_set_background(png_structrp png_ptr,
  * TRANSFORM and API behavior to be somewhat consistent, and it's simpler.
  */
 #ifdef PNG_READ_SCALE_16_TO_8_SUPPORTED
-void PNGAPI
+void
 png_set_scale_16(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_scale_16");
@@ -198,7 +181,7 @@ png_set_scale_16(png_structrp png_ptr)
 
 #ifdef PNG_READ_STRIP_16_TO_8_SUPPORTED
 /* Chop 16-bit depth files to 8-bit depth */
-void PNGAPI
+void
 png_set_strip_16(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_strip_16");
@@ -211,7 +194,7 @@ png_set_strip_16(png_structrp png_ptr)
 #endif
 
 #ifdef PNG_READ_STRIP_ALPHA_SUPPORTED
-void PNGAPI
+void
 png_set_strip_alpha(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_strip_alpha");
@@ -357,7 +340,7 @@ unsupported_gamma(png_structrp png_ptr, png_fixed_point gamma, int warn)
 #endif /* READ_ALPHA_MODE || READ_GAMMA */
 
 #ifdef PNG_READ_ALPHA_MODE_SUPPORTED
-void PNGFAPI
+void
 png_set_alpha_mode_fixed(png_structrp png_ptr, int mode,
     png_fixed_point output_gamma)
 {
@@ -457,7 +440,7 @@ png_set_alpha_mode_fixed(png_structrp png_ptr, int mode,
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_alpha_mode(png_structrp png_ptr, int mode, double output_gamma)
 {
    png_set_alpha_mode_fixed(png_ptr, mode, convert_gamma_value(png_ptr,
@@ -485,7 +468,7 @@ typedef struct png_dsort_struct
 typedef png_dsort *   png_dsortp;
 typedef png_dsort * * png_dsortpp;
 
-void PNGAPI
+void
 png_set_quantize(png_structrp png_ptr, png_colorp palette,
     int num_palette, int maximum_colors, png_const_uint_16p histogram,
     int full_quantize)
@@ -872,7 +855,7 @@ png_set_quantize(png_structrp png_ptr, png_colorp palette,
 #endif /* READ_QUANTIZE */
 
 #ifdef PNG_READ_GAMMA_SUPPORTED
-void PNGFAPI
+void
 png_set_gamma_fixed(png_structrp png_ptr, png_fixed_point scrn_gamma,
     png_fixed_point file_gamma)
 {
@@ -914,7 +897,7 @@ png_set_gamma_fixed(png_structrp png_ptr, png_fixed_point scrn_gamma,
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_gamma(png_structrp png_ptr, double scrn_gamma, double file_gamma)
 {
    png_set_gamma_fixed(png_ptr, convert_gamma_value(png_ptr, scrn_gamma),
@@ -928,7 +911,7 @@ png_set_gamma(png_structrp png_ptr, double scrn_gamma, double file_gamma)
  * less than 8-bit depth to 8-bit depth, and expand tRNS chunks
  * to alpha channels.
  */
-void PNGAPI
+void
 png_set_expand(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_expand");
@@ -958,7 +941,7 @@ png_set_expand(png_structrp png_ptr)
  */
 
 /* Expand paletted images to RGB. */
-void PNGAPI
+void
 png_set_palette_to_rgb(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_palette_to_rgb");
@@ -970,7 +953,7 @@ png_set_palette_to_rgb(png_structrp png_ptr)
 }
 
 /* Expand grayscale images of less than 8-bit depth to 8 bits. */
-void PNGAPI
+void
 png_set_expand_gray_1_2_4_to_8(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_expand_gray_1_2_4_to_8");
@@ -982,7 +965,7 @@ png_set_expand_gray_1_2_4_to_8(png_structrp png_ptr)
 }
 
 /* Expand tRNS chunks to alpha channels. */
-void PNGAPI
+void
 png_set_tRNS_to_alpha(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_tRNS_to_alpha");
@@ -998,7 +981,7 @@ png_set_tRNS_to_alpha(png_structrp png_ptr)
 /* Expand to 16-bit channels, expand the tRNS chunk too (because otherwise
  * it may not work correctly.)
  */
-void PNGAPI
+void
 png_set_expand_16(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_expand_16");
@@ -1011,7 +994,7 @@ png_set_expand_16(png_structrp png_ptr)
 #endif
 
 #ifdef PNG_READ_GRAY_TO_RGB_SUPPORTED
-void PNGAPI
+void
 png_set_gray_to_rgb(png_structrp png_ptr)
 {
    png_debug(1, "in png_set_gray_to_rgb");
@@ -1026,7 +1009,7 @@ png_set_gray_to_rgb(png_structrp png_ptr)
 #endif
 
 #ifdef PNG_READ_RGB_TO_GRAY_SUPPORTED
-void PNGFAPI
+void
 png_set_rgb_to_gray_fixed(png_structrp png_ptr, int error_action,
     png_fixed_point red, png_fixed_point green)
 {
@@ -1098,7 +1081,7 @@ png_set_rgb_to_gray_fixed(png_structrp png_ptr, int error_action,
  * for example, to convert a 24 bpp RGB image into an 8 bpp grayscale image.
  */
 
-void PNGAPI
+void
 png_set_rgb_to_gray(png_structrp png_ptr, int error_action, double red,
     double green)
 {
@@ -1112,9 +1095,9 @@ png_set_rgb_to_gray(png_structrp png_ptr, int error_action, double red,
 
 #if defined(PNG_READ_USER_TRANSFORM_SUPPORTED) || \
     defined(PNG_WRITE_USER_TRANSFORM_SUPPORTED)
-void PNGAPI
-png_set_read_user_transform_fn(png_structrp png_ptr, png_user_transform_ptr
-    read_user_transform_fn)
+void
+png_set_read_user_transform_fn(png_structrp png_ptr,
+    png_user_transform_ptr read_user_transform_fn)
 {
    png_debug(1, "in png_set_read_user_transform_fn");
 
@@ -1624,9 +1607,10 @@ png_init_read_transformations(png_structrp png_ptr)
    }
 #endif
 
-   /* NOTE: below 'PNG_READ_ALPHA_MODE_SUPPORTED' is presumed to also enable the
-    * background support (see the comments in scripts/pnglibconf.dfa), this
-    * allows pre-multiplication of the alpha channel to be implemented as
+   /* NOTE:
+    * Below 'PNG_READ_ALPHA_MODE_SUPPORTED' is presumed to also enable the
+    * background support; see comments in scripts/pnglibconf/pnglibconf.dfa.
+    * This allows pre-multiplication of the alpha channel to be implemented as
     * compositing on black.  This is probably sub-optimal and has been done in
     * 1.5.4 betas simply to enable external critique and testing (i.e. to
     * implement the new API quickly, without lots of internal changes.)
@@ -4286,9 +4270,8 @@ png_do_encode_alpha(png_row_infop row_info, png_bytep row, png_structrp png_ptr)
  * upon whether you supply trans and num_trans.
  */
 static void
-png_do_expand_palette(png_structrp png_ptr, png_row_infop row_info,
-    png_bytep row, png_const_colorp palette, png_const_bytep trans_alpha,
-    int num_trans)
+png_do_expand_palette(png_row_infop row_info, png_bytep row,
+    png_const_colorp palette, png_const_bytep trans_alpha, int num_trans)
 {
    int shift, value;
    png_bytep sp, dp;
@@ -4393,21 +4376,7 @@ png_do_expand_palette(png_structrp png_ptr, png_row_infop row_info,
                dp = row + ((size_t)row_width << 2) - 1;
 
                i = 0;
-#ifdef PNG_ARM_NEON_INTRINSICS_AVAILABLE
-               if (png_ptr->riffled_palette != NULL)
-               {
-                  /* The RGBA optimization works with png_ptr->bit_depth == 8
-                   * but sometimes row_info->bit_depth has been changed to 8.
-                   * In these cases, the palette hasn't been riffled.
-                   */
-                  i = png_do_expand_palette_rgba8_neon(png_ptr, row_info, row,
-                      &sp, &dp);
-               }
-#else
-               PNG_UNUSED(png_ptr)
-#endif
-
-               for (; i < row_width; i++)
+               for (i = 0; i < row_width; i++)
                {
                   if ((int)(*sp) >= num_trans)
                      *dp-- = 0xff;
@@ -4429,15 +4398,7 @@ png_do_expand_palette(png_structrp png_ptr, png_row_infop row_info,
             {
                sp = row + (size_t)row_width - 1;
                dp = row + (size_t)(row_width * 3) - 1;
-               i = 0;
-#ifdef PNG_ARM_NEON_INTRINSICS_AVAILABLE
-               i = png_do_expand_palette_rgb8_neon(png_ptr, row_info, row,
-                   &sp, &dp);
-#else
-               PNG_UNUSED(png_ptr)
-#endif
-
-               for (; i < row_width; i++)
+               for (i = 0; i < row_width; i++)
                {
                   *dp-- = palette[*sp].blue;
                   *dp-- = palette[*sp].green;
@@ -4851,19 +4812,14 @@ png_do_read_transformations(png_structrp png_ptr, png_row_infop row_info)
    {
       if (row_info->color_type == PNG_COLOR_TYPE_PALETTE)
       {
-#ifdef PNG_ARM_NEON_INTRINSICS_AVAILABLE
-         if ((png_ptr->num_trans > 0) && (png_ptr->bit_depth == 8))
-         {
-            if (png_ptr->riffled_palette == NULL)
-            {
-               /* Initialize the accelerated palette expansion. */
-               png_ptr->riffled_palette =
-                   (png_bytep)png_malloc(png_ptr, 256 * 4);
-               png_riffle_palette_neon(png_ptr);
-            }
-         }
+#ifdef PNG_TARGET_IMPLEMENTS_EXPAND_PALETTE
+         /* Do not call 'png_do_expand_palette' if the SIMD implementation
+          * does it (note that this accomodates SIMD implementations which might
+          * only handle specific cases).
+          */
+         if (!png_target_do_expand_palette(png_ptr, row_info))
 #endif
-         png_do_expand_palette(png_ptr, row_info, png_ptr->row_buf + 1,
+         png_do_expand_palette(row_info, png_ptr->row_buf + 1,
              png_ptr->palette, png_ptr->trans_alpha, png_ptr->num_trans);
       }
 

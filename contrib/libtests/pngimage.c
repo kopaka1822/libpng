@@ -45,7 +45,6 @@
 #  define SKIP 0
 #endif
 
-#if PNG_LIBPNG_VER < 10700
    /* READ_PNG and WRITE_PNG were not defined, so: */
 #  ifdef PNG_INFO_IMAGE_SUPPORTED
 #     ifdef PNG_SEQUENTIAL_READ_SUPPORTED
@@ -55,7 +54,6 @@
 #        define PNG_WRITE_PNG_SUPPORTED
 #     endif /* WRITE */
 #  endif /* INFO_IMAGE */
-#endif /* pre 1.7.0 */
 
 #ifdef PNG_READ_PNG_SUPPORTED
 /* If a transform is valid on both read and write this implies that if the
@@ -373,11 +371,11 @@ struct buffer_list
 
 struct buffer
 {
-   struct buffer_list  *last;       /* last buffer in use */
-   size_t               end_count;  /* bytes in the last buffer */
-   struct buffer_list  *current;    /* current buffer being read */
-   size_t               read_count; /* count of bytes read from current */
-   struct buffer_list   first;      /* the very first buffer */
+   struct buffer_list *last;       /* last buffer in use */
+   size_t              end_count;  /* bytes in the last buffer */
+   struct buffer_list *current;    /* current buffer being read */
+   size_t              read_count; /* count of bytes read from current */
+   struct buffer_list  first;      /* the very first buffer */
 };
 
 static void
@@ -770,13 +768,13 @@ display_log(struct display *dp, error_level level, const char *fmt, ...)
 }
 
 /* error handler callbacks for libpng */
-static void PNGCBAPI
+static void
 display_warning(png_structp pp, png_const_charp warning)
 {
    display_log(get_dp(pp), LIBPNG_WARNING, "%s", warning);
 }
 
-static void PNGCBAPI
+static void
 display_error(png_structp pp, png_const_charp error)
 {
    struct display *dp = get_dp(pp);
@@ -860,7 +858,7 @@ buffer_read(struct display *dp, struct buffer *bp, png_bytep data,
    bp->read_count = read_count;
 }
 
-static void PNGCBAPI
+static void
 read_function(png_structp pp, png_bytep data, size_t size)
 {
    buffer_read(get_dp(pp), get_buffer(pp), data, size);
@@ -871,7 +869,7 @@ read_png(struct display *dp, struct buffer *bp, const char *operation,
    int transforms)
 {
    png_structp pp;
-   png_infop   ip;
+   png_infop ip;
 
    /* This cleans out any previous read and sets operation and transforms to
     * empty.
@@ -931,7 +929,7 @@ update_display(struct display *dp)
     */
 {
    png_structp pp;
-   png_infop   ip;
+   png_infop ip;
 
    /* Now perform the initial read with a 0 transform. */
    read_png(dp, &dp->original_file, "original read", 0/*no transform*/);
@@ -1327,7 +1325,7 @@ buffer_write(struct display *dp, struct buffer *buffer, png_bytep data,
    buffer->end_count = end_count;
 }
 
-static void PNGCBAPI
+static void
 write_function(png_structp pp, png_bytep data, size_t size)
 {
    buffer_write(get_dp(pp), get_buffer(pp), data, size);

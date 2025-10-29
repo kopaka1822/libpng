@@ -56,7 +56,6 @@
 
 
 
-#if PNG_LIBPNG_VER < 10700
    /* Copied from libpng 1.7.0 png.h */
 #define PNG_u2(b1, b2) (((unsigned int)(b1) << 8) + (b2))
 
@@ -103,8 +102,6 @@
 #define PNG_CHUNK_PRIVATE(c)      (1 & ((c) >> 21))
 #define PNG_CHUNK_RESERVED(c)     (1 & ((c) >> 13))
 #define PNG_CHUNK_SAFE_TO_COPY(c) (1 & ((c) >>  5))
-
-#endif /* PNG_LIBPNG_VER < 10700 */
 
 #ifdef __cplusplus
 #  define this not_the_cpp_this
@@ -419,7 +416,8 @@ clean_display(display *d)
    }
 }
 
-PNG_FUNCTION(void, display_exit, (display *d), static PNG_NORETURN)
+static PNG_NORETURN void
+display_exit(display *d)
 {
    ++(d->error_count);
 
@@ -442,8 +440,8 @@ display_rc(const display *d, int strict)
 }
 
 /* libpng error and warning callbacks */
-PNG_FUNCTION(void, (PNGCBAPI error), (png_structp png_ptr, const char *message),
-   static PNG_NORETURN)
+static PNG_NORETURN void
+error(png_structp png_ptr, const char *message)
 {
    display *d = (display*)png_get_error_ptr(png_ptr);
 
@@ -451,7 +449,7 @@ PNG_FUNCTION(void, (PNGCBAPI error), (png_structp png_ptr, const char *message),
    display_exit(d);
 }
 
-static void PNGCBAPI
+static void
 warning(png_structp png_ptr, const char *message)
 {
    display *d = (display*)png_get_error_ptr(png_ptr);
@@ -493,7 +491,7 @@ get_valid(display *d, png_infop info_ptr)
 }
 
 #ifdef PNG_READ_USER_CHUNKS_SUPPORTED
-static int PNGCBAPI
+static int
 read_callback(png_structp pp, png_unknown_chunkp pc)
 {
    /* This function mimics the behavior of png_set_keep_unknown_chunks by

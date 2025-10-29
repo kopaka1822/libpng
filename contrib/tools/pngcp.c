@@ -1,6 +1,6 @@
 /* pngcp.c
  *
- * Copyright (c) 2016,2022,2024 John Cunningham Bowler
+ * Copyright (c) 2016,2022,2024,2025 John Cunningham Bowler
  *
  * This code is released under the libpng license.
  * For conditions of distribution and use, see the disclaimer
@@ -53,7 +53,6 @@
 #  include "../../png.h"
 #endif
 
-#if PNG_LIBPNG_VER < 10700
    /* READ_PNG and WRITE_PNG were not defined, so: */
 #  ifdef PNG_INFO_IMAGE_SUPPORTED
 #     ifdef PNG_SEQUENTIAL_READ_SUPPORTED
@@ -63,7 +62,6 @@
 #        define PNG_WRITE_PNG_SUPPORTED
 #     endif /* WRITE */
 #  endif /* INFO_IMAGE */
-#endif /* pre 1.7.0 */
 
 #if (defined(PNG_READ_PNG_SUPPORTED)) && (defined(PNG_WRITE_PNG_SUPPORTED))
 #include <stdarg.h>
@@ -400,11 +398,11 @@ struct display
    png_alloc_size_t read_size;
    png_structp      read_pp;
    png_infop        ip;
-#  if PNG_LIBPNG_VER < 10700 && defined PNG_TEXT_SUPPORTED
+#  if defined PNG_TEXT_SUPPORTED
       png_textp     text_ptr; /* stash of text chunks */
       int           num_text;
       int           text_stashed;
-#  endif /* pre 1.7 */
+#  endif
 
 #  ifdef PNG_PNGCP_TIMING_SUPPORTED
       struct timespec   read_time;
@@ -489,11 +487,11 @@ display_init(struct display *dp)
    dp->ip = NULL;
    dp->write_pp = NULL;
    dp->min_windowBits = -1; /* this is an OPTIND, so -1 won't match anything */
-#  if PNG_LIBPNG_VER < 10700 && defined PNG_TEXT_SUPPORTED
+#  if defined PNG_TEXT_SUPPORTED
       dp->text_ptr = NULL;
       dp->num_text = 0;
       dp->text_stashed = 0;
-#  endif /* pre 1.7 */
+#  endif
 }
 
 static void
@@ -531,7 +529,7 @@ display_clean(struct display *dp)
    display_clean_write(dp, 1/*freeinfo*/);
    dp->output_file = NULL;
 
-#  if PNG_LIBPNG_VER < 10700 && defined PNG_TEXT_SUPPORTED
+#  if defined PNG_TEXT_SUPPORTED
       /* This is actually created and used by the write code, but only
        * once; it has to be retained for subsequent writes of the same file.
        */
@@ -542,7 +540,7 @@ display_clean(struct display *dp)
          free(dp->text_ptr);
          dp->text_ptr = NULL;
       }
-#  endif /* pre 1.7 */
+#  endif
 
    /* leave the filename for error detection */
    dp->results = 0; /* reset for next time */
@@ -635,7 +633,7 @@ display_log(struct display *dp, error_level level, const char *fmt, ...)
    }
 }
 
-#if PNG_LIBPNG_VER < 10700 && defined PNG_TEXT_SUPPORTED
+#if defined PNG_TEXT_SUPPORTED
 static void
 text_stash(struct display *dp)
 {
@@ -687,9 +685,6 @@ text_restore(struct display *dp)
 
 #define text_restore(dp) if (dp->text_stashed) text_restore(dp)
 
-#else
-#define text_stash(dp) ((void)0)
-#define text_restore(dp) ((void)0)
 #endif /* pre 1.7 */
 
 /* OPTIONS:
@@ -1679,7 +1674,7 @@ makename(struct display *dp, const char *dir, const char *infile)
 }
 
 /* error handler callbacks for libpng */
-static void PNGCBAPI
+static void
 display_warning(png_structp pp, png_const_charp warning)
 {
    struct display *dp = get_dp(pp);
@@ -1689,7 +1684,7 @@ display_warning(png_structp pp, png_const_charp warning)
       display_log(get_dp(pp), LIBPNG_WARNING, "%s", warning);
 }
 
-static void PNGCBAPI
+static void
 display_error(png_structp pp, png_const_charp error)
 {
    struct display *dp = get_dp(pp);
@@ -1721,7 +1716,7 @@ display_start_read(struct display *dp, const char *filename)
       display_log(dp, USER_ERROR, "file open failed (%s)", strerror(errno));
 }
 
-static void PNGCBAPI
+static void
 read_function(png_structp pp, png_bytep data, size_t size)
 {
    struct display *dp = get_dp(pp);
@@ -1775,6 +1770,80 @@ read_png(struct display *dp, const char *filename)
       if ((dp->options & IGNORE_INDEX) != 0) /* DANGEROUS */
          png_set_check_for_invalid_index(dp->read_pp, -1/*off completely*/);
 #  endif /* IGNORE_INDEX */
+
+   /* CHUNK HANDLING
+    * ==============
+    *
+    * This code makes every ancillary chunk unknown and "save if safe" then sets
+    * the unsafe-to-copy chunks that we **known** are safe for pngcp to copy to
+    * also be saved.
+    *
+    * This requires 'HANDLE_AS_UNKNOWN'; if not available the original code
+    * which just copies everything will be used.  The problem with this is
+    * that it will copy chunks we don't handle, there's no way round this
+    * without handle as unknown support.
+    */
+#   ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
+         /* Step 1: tell libpng to apply the default 'unknown' handling to all
+          * the ancillary chunks (except tRNS) that it knows about.  At the
+          * same time make the default handling be to preserve the chunk
+          * only if it is safe.
+          *
+          * NOTE: a call to png_set_keep_unknown_chunks with a 0 or negative
+          * count (so no chunks given) sets the default handling for unknown
+          * chunks.  When the count is negative it *also* sets explicit handling
+          * for all the known non-critical chunks except tRNS to the given
+          * behaviour.
+          */
+        png_set_keep_unknown_chunks(dp->read_pp, PNG_HANDLE_CHUNK_IF_SAFE, NULL,
+           -1);
+
+        /* Step 2: for the not-safe-to-copy chunks pngcp knows about
+         * (as opposed to the ones libpng knows about) set the behavior
+         * explicitly.
+         *
+         * This is needed because even libpng **minor** revisions add chunks
+         * and these are frequently not safe to copy!  So if libpng adds
+         * handling for something we don't know about to be safe pngcp has to
+         * **not** copy it.
+         *
+         * This is also why previous versions of pngcp were wrong; they would
+         * copy new unsafe-to-copy chunks.  This is also why pngcp is still
+         * wrong if HANDLE_AS_UNKNOWN is not supported - there's no way to fix
+         * that bug!
+         *
+         * The list below has been shamelessly copied from pngset.c.  At
+         * present none of the 'unsafe-to-copy' chunks need to be removed as a
+         * result of pngcp recompressing the IDAT chunks.  This would not
+         * apply if it recompressed the fdAT chunks, but then it would get
+         * the sequence numbers right so this wouldn't matter.
+         */
+         static const png_byte chunks_to_keep[] = {
+             97,  99,  84,  76, '\0',  /* acTL */
+             98,  75,  71,  68, '\0',  /* bKGD */
+             99,  72,  82,  77, '\0',  /* cHRM */
+             99,  73,  67,  80, '\0',  /* cICP */
+             99,  76,  76,  73, '\0',  /* cLLI */
+            101,  88,  73, 102, '\0',  /* eXIf */
+            102,  99,  84,  76, '\0',  /* fcTL */
+            102, 100,  65,  84, '\0',  /* fdAT */
+            103,  65,  77,  65, '\0',  /* gAMA */
+            104,  73,  83,  84, '\0',  /* hIST */
+            105,  67,  67,  80, '\0',  /* iCCP */
+            109,  68,  67,  86, '\0',  /* mDCV */
+            112,  67,  65,  76, '\0',  /* pCAL */
+            115,  66,  73,  84, '\0',  /* sBIT */
+            115,  67,  65,  76, '\0',  /* sCAL */
+            115,  80,  76,  84, '\0',  /* sPLT */
+            115,  84,  69,  82, '\0',  /* sTER */
+            115,  82,  71,  66, '\0',  /* sRGB */
+            116,  73,  77,  69, '\0'   /* tIME */
+         };
+
+
+        png_set_keep_unknown_chunks(dp->read_pp, PNG_HANDLE_CHUNK_ALWAYS,
+           chunks_to_keep, (unsigned int)/*SAFE*/(sizeof chunks_to_keep)/5U);
+#   endif /* HANDLE_AS_UNKNOWN_SUPPORTED */
 
    if (dp->ip != NULL)
    {
@@ -1901,7 +1970,7 @@ display_start_write(struct display *dp, const char *filename)
    }
 }
 
-static void PNGCBAPI
+static void
 write_function(png_structp pp, png_bytep data, size_t size)
 {
    struct display *dp = get_dp(pp);
@@ -2037,6 +2106,10 @@ write_png(struct display *dp, const char *destname)
    text_restore(dp);
 
 #  ifdef PNG_HANDLE_AS_UNKNOWN_SUPPORTED
+      /* dp->read_pp set up the handle as unknown support to only write
+       * chunks that pngcp knows to be safe to copy into unknown, so this
+       * just works:
+       */
       png_set_keep_unknown_chunks(dp->write_pp, PNG_HANDLE_CHUNK_ALWAYS, NULL,
             0);
 #  endif /* HANDLE_AS_UNKNOWN */

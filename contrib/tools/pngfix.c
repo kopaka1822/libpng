@@ -31,10 +31,6 @@
 #  include "../../png.h"
 #endif
 
-#if PNG_LIBPNG_VER < 10603 /* 1.6.3 */
-#  error pngfix requires libpng version 1.6.3 or newer
-#endif
-
 #ifdef PNG_SETJMP_SUPPORTED
 #include <setjmp.h>
 
@@ -88,7 +84,6 @@
 #  define aligncastconst(type, value) ((const void*)(value))
 #endif /* __cplusplus */
 
-#if PNG_LIBPNG_VER < 10700
 /* Chunk tags (copied from pngpriv.h) */
 #define PNG_32b(b,s) ((png_uint_32)(b) << (s))
 #define PNG_U32(b1,b2,b3,b4) \
@@ -121,7 +116,6 @@
 #define png_tIME PNG_U32(116,  73,  77,  69)
 #define png_tRNS PNG_U32(116,  82,  78,  83)
 #define png_zTXt PNG_U32(122,  84,  88, 116)
-#endif
 
 /* The 8-byte signature as a pair of 32-bit quantities */
 #define sig1 PNG_U32(137,  80,  78,  71)
@@ -427,7 +421,7 @@ uarb_print(uarb num, int digits, FILE *out)
  * (Copied from contrib/libtests/pngvalid.c)
  */
 static void
-make_random_bytes(png_uint_32* seed, void* pv, size_t size)
+make_random_bytes(png_uint_32 *seed, void *pv, size_t size)
 {
    png_uint_32 u0 = seed[0], u1 = seed[1];
    png_bytep bytes = voidcast(png_bytep, pv);
@@ -706,7 +700,6 @@ struct global
 static int
 global_end(struct global *global)
 {
-
    int rc;
 
    IDAT_list_end(&global->idat_cache);
@@ -1476,7 +1469,7 @@ calc_image_size(struct file *file)
 
                if (pw > 0)
                {
-                  int  digits;
+                  int digits;
 
                   /* calculate 1+((pw*pd+7)>>3) in row_bytes */
                   digits = uarb_mult_digit(row_bytes, uarb_set(row_bytes, 7),
@@ -1498,7 +1491,7 @@ calc_image_size(struct file *file)
 
       case PNG_INTERLACE_NONE:
          {
-            int  digits;
+            int digits;
             udigit row_width[2], row_bytes[3];
 
             /* As above, but use image_width in place of the pass width: */
@@ -2492,7 +2485,7 @@ zlib_run(struct zlib *zlib)
    {
       struct IDAT_list *list = zlib->idat->idat_list_head;
       struct IDAT_list *last = zlib->idat->idat_list_tail;
-      int        skip = 0;
+      int skip = 0;
 
       /* 'rewrite_offset' is the offset of the LZ data within the chunk, for
        * IDAT it should be 0:
@@ -3155,13 +3148,13 @@ read_chunk(struct file *file)
 /* This returns a file* from a png_struct in an implementation specific way. */
 static struct file *get_control(png_const_structrp png_ptr);
 
-static void PNGCBAPI
+static void
 error_handler(png_structp png_ptr, png_const_charp message)
 {
    stop(get_control(png_ptr),  LIBPNG_ERROR_CODE, message);
 }
 
-static void PNGCBAPI
+static void
 warning_handler(png_structp png_ptr, png_const_charp message)
 {
    struct file *file = get_control(png_ptr);
@@ -3173,7 +3166,7 @@ warning_handler(png_structp png_ptr, png_const_charp message)
 /* Read callback - this is where the work gets done to check the stream before
  * passing it to libpng
  */
-static void PNGCBAPI
+static void
 read_callback(png_structp png_ptr, png_bytep buffer, size_t count)
    /* Return 'count' bytes to libpng in 'buffer' */
 {
@@ -3848,11 +3841,11 @@ int
 main(int argc, const char **argv)
 {
    char temp_name[FILENAME_MAX+1];
-   const char *  prog = *argv;
-   const char *  outfile = NULL;
-   const char *  suffix = NULL;
-   const char *  prefix = NULL;
-   int           done = 0; /* if at least one file is processed */
+   const char *prog = *argv;
+   const char *outfile = NULL;
+   const char *suffix = NULL;
+   const char *prefix = NULL;
+   int done = 0; /* if at least one file is processed */
    struct global global;
 
    global_init(&global);

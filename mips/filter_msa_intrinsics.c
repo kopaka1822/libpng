@@ -8,15 +8,6 @@
  * For conditions of distribution and use, see the disclaimer
  * and license in png.h
  */
-
-#include <stdio.h>
-#include "../pngpriv.h"
-
-#ifdef PNG_READ_SUPPORTED
-
-/* This code requires -mfpu=msa on the command line: */
-#if PNG_MIPS_MSA_IMPLEMENTATION == 1 /* intrinsics code from pngpriv.h */
-
 #include <msa.h>
 #include <stdint.h>
 
@@ -35,8 +26,6 @@
  */
 #define png_ldr(type,pointer)\
    (temp_pointer = png_ptr(type,pointer), *temp_pointer)
-
-#if PNG_MIPS_MSA_OPT > 0
 
 #ifdef CLANG_BUILD
    #define MSA_SRLI_B(a, b)   __msa_srli_b((v16i8) a, b)
@@ -363,8 +352,9 @@
    out0 += inp4;                                                              \
 }
 
-void png_read_filter_row_up_msa(png_row_infop row_info, png_bytep row,
-                                png_const_bytep prev_row)
+static void
+png_read_filter_row_up_msa(png_row_infop row_info, png_bytep row,
+    png_const_bytep prev_row)
 {
    size_t i, cnt, cnt16, cnt32;
    size_t istop = row_info->rowbytes;
@@ -454,8 +444,9 @@ void png_read_filter_row_up_msa(png_row_infop row_info, png_bytep row,
    }
 }
 
-void png_read_filter_row_sub4_msa(png_row_infop row_info, png_bytep row,
-                                  png_const_bytep prev_row)
+static void
+png_read_filter_row_sub4_msa(png_row_infop row_info, png_bytep row,
+    png_const_bytep prev_row)
 {
    size_t count;
    size_t istop = row_info->rowbytes;
@@ -493,8 +484,9 @@ void png_read_filter_row_sub4_msa(png_row_infop row_info, png_bytep row,
    }
 }
 
-void png_read_filter_row_sub3_msa(png_row_infop row_info, png_bytep row,
-                                  png_const_bytep prev_row)
+static void
+png_read_filter_row_sub3_msa(png_row_infop row_info, png_bytep row,
+    png_const_bytep prev_row)
 {
    size_t count;
    size_t istop = row_info->rowbytes;
@@ -538,8 +530,9 @@ void png_read_filter_row_sub3_msa(png_row_infop row_info, png_bytep row,
    }
 }
 
-void png_read_filter_row_avg4_msa(png_row_infop row_info, png_bytep row,
-                                  png_const_bytep prev_row)
+static void
+png_read_filter_row_avg4_msa(png_row_infop row_info, png_bytep row,
+    png_const_bytep prev_row)
 {
    size_t i;
    png_bytep src = row;
@@ -589,8 +582,9 @@ void png_read_filter_row_avg4_msa(png_row_infop row_info, png_bytep row,
    }
 }
 
-void png_read_filter_row_avg3_msa(png_row_infop row_info, png_bytep row,
-                                  png_const_bytep prev_row)
+static void
+png_read_filter_row_avg3_msa(png_row_infop row_info, png_bytep row,
+    png_const_bytep prev_row)
 {
    size_t i;
    png_bytep src = row;
@@ -650,9 +644,9 @@ void png_read_filter_row_avg3_msa(png_row_infop row_info, png_bytep row,
    }
 }
 
-void png_read_filter_row_paeth4_msa(png_row_infop row_info,
-                                    png_bytep row,
-                                    png_const_bytep prev_row)
+static void
+png_read_filter_row_paeth4_msa(png_row_infop row_info, png_bytep row,
+    png_const_bytep prev_row)
 {
    int32_t count, rp_end;
    png_bytep nxt;
@@ -721,9 +715,9 @@ void png_read_filter_row_paeth4_msa(png_row_infop row_info,
    }
 }
 
-void png_read_filter_row_paeth3_msa(png_row_infop row_info,
-                                    png_bytep row,
-                                    png_const_bytep prev_row)
+static void
+png_read_filter_row_paeth3_msa(png_row_infop row_info, png_bytep row,
+    png_const_bytep prev_row)
 {
    int32_t count, rp_end;
    png_bytep nxt;
@@ -801,7 +795,3 @@ void png_read_filter_row_paeth3_msa(png_row_infop row_info,
       nxt += 4;
    }
 }
-
-#endif /* PNG_MIPS_MSA_OPT > 0 */
-#endif /* PNG_MIPS_MSA_IMPLEMENTATION == 1 (intrinsics) */
-#endif /* READ */

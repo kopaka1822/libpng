@@ -37,7 +37,7 @@ static const png_byte png_pass_yinc[7] = {8, 8, 8, 4, 4, 2, 2};
 /* TODO: Move these arrays to a common utility module to avoid duplication. */
 #endif
 
-png_uint_32 PNGAPI
+png_uint_32
 png_get_uint_31(png_const_structrp png_ptr, png_const_bytep buf)
 {
    png_uint_32 uval = png_get_uint_32(buf);
@@ -53,14 +53,14 @@ png_get_uint_31(png_const_structrp png_ptr, png_const_bytep buf)
  * PNG_USE_READ_MACROS is set the library will not use them internally,
  * but the APIs will still be available externally.
  *
- * The parentheses around "PNGAPI function_name" in the following three
- * functions are necessary because they allow the macros to co-exist with
- * these (unused but exported) functions.
+ * The parentheses around function names in the following three functions
+ * are necessary, because they allow the macros to co-exist with these
+ * (unused but exported) functions.
  */
 
 /* Grab an unsigned 32-bit integer from a buffer in big-endian format. */
-png_uint_32 (PNGAPI
-png_get_uint_32)(png_const_bytep buf)
+png_uint_32
+(png_get_uint_32)(png_const_bytep buf)
 {
    png_uint_32 uval =
        ((png_uint_32)(*(buf    )) << 24) +
@@ -76,8 +76,8 @@ png_get_uint_32)(png_const_bytep buf)
  * is no guarantee that a 'png_int_32' is exactly 32 bits, therefore
  * the following code does a two's complement to native conversion.
  */
-png_int_32 (PNGAPI
-png_get_int_32)(png_const_bytep buf)
+png_int_32
+(png_get_int_32)(png_const_bytep buf)
 {
    png_uint_32 uval = png_get_uint_32(buf);
    if ((uval & 0x80000000) == 0) /* non-negative */
@@ -94,8 +94,8 @@ png_get_int_32)(png_const_bytep buf)
 }
 
 /* Grab an unsigned 16-bit integer from a buffer in big-endian format. */
-png_uint_16 (PNGAPI
-png_get_uint_16)(png_const_bytep buf)
+png_uint_16
+(png_get_uint_16)(png_const_bytep buf)
 {
    /* ANSI-C requires an int value to accommodate at least 16 bits so this
     * works and allows the compiler not to worry about possible narrowing
@@ -449,7 +449,6 @@ png_inflate_claim(png_structrp png_ptr, png_uint_32 owner)
 #if ZLIB_VERNUM >= 0x1240
       int window_bits = 0;
 
-# if defined(PNG_SET_OPTION_SUPPORTED) && defined(PNG_MAXIMUM_INFLATE_WINDOW)
       if (((png_ptr->options >> PNG_MAXIMUM_INFLATE_WINDOW) & 3) ==
           PNG_OPTION_ON)
       {
@@ -461,8 +460,6 @@ png_inflate_claim(png_structrp png_ptr, png_uint_32 owner)
       {
          png_ptr->zstream_start = 1;
       }
-# endif
-
 #endif /* ZLIB_VERNUM >= 0x1240 */
 
       /* Set this for safety, just in case the previous owner left pointers to
@@ -921,6 +918,11 @@ png_handle_IHDR(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
    compression_type = buf[10];
    filter_type = buf[11];
    interlace_type = buf[12];
+
+#ifdef PNG_READ_APNG_SUPPORTED
+   png_ptr->first_frame_width = width;
+   png_ptr->first_frame_height = height;
+#endif
 
    /* Set internal variables */
    png_ptr->width = width;
@@ -2386,7 +2388,7 @@ png_handle_tIME(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
 static png_handle_result_code /* PRIVATE */
 png_handle_tEXt(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
 {
-   png_text  text_info;
+   png_text text_info;
    png_bytep buffer;
    png_charp key;
    png_charp text;
@@ -2459,8 +2461,8 @@ static png_handle_result_code /* PRIVATE */
 png_handle_zTXt(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
 {
    png_const_charp errmsg = NULL;
-   png_bytep       buffer;
-   png_uint_32     keyword_length;
+   png_bytep buffer;
+   png_uint_32 keyword_length;
 
    png_debug(1, "in png_handle_zTXt");
 
@@ -2717,6 +2719,184 @@ png_handle_iTXt(png_structrp png_ptr, png_inforp info_ptr, png_uint_32 length)
 #else
 #  define png_handle_iTXt NULL
 #endif
+
+#ifdef PNG_READ_APNG_SUPPORTED
+void /* PRIVATE */
+png_handle_acTL(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
+{
+   png_byte data[8];
+   png_uint_32 num_frames;
+   png_uint_32 num_plays;
+
+   png_debug(1, "in png_handle_acTL");
+
+   if (!(png_ptr->mode & PNG_HAVE_IHDR))
+   {
+      png_error(png_ptr, "Missing IHDR before acTL");
+   }
+   else if (png_ptr->mode & PNG_HAVE_IDAT)
+   {
+      png_warning(png_ptr, "Ignoring misplaced acTL after IDAT");
+      png_crc_finish(png_ptr, length);
+      return;
+   }
+   else if (png_ptr->mode & PNG_HAVE_acTL)
+   {
+      png_warning(png_ptr, "Ignoring duplicate acTL");
+      png_crc_finish(png_ptr, length);
+      return;
+   }
+   else if (length != 8)
+   {
+      png_warning(png_ptr, "Ignoring acTL with incorrect length");
+      png_crc_finish(png_ptr, length);
+      return;
+   }
+
+   png_crc_read(png_ptr, data, 8);
+   png_crc_finish(png_ptr, 0);
+
+   num_frames = png_get_uint_31(png_ptr, data);
+   num_plays = png_get_uint_31(png_ptr, data + 4);
+
+   /* The set function will do error checking on num_frames. */
+   if (png_set_acTL(png_ptr, info_ptr, num_frames, num_plays))
+      png_ptr->mode |= PNG_HAVE_acTL;
+}
+
+void /* PRIVATE */
+png_handle_fcTL(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
+{
+   png_byte data[22];
+   png_uint_32 width;
+   png_uint_32 height;
+   png_uint_32 x_offset;
+   png_uint_32 y_offset;
+   png_uint_16 delay_num;
+   png_uint_16 delay_den;
+   png_byte dispose_op;
+   png_byte blend_op;
+
+   png_debug(1, "in png_handle_fcTL");
+
+   png_ensure_sequence_number(png_ptr, length);
+
+   if (!(png_ptr->mode & PNG_HAVE_IHDR))
+   {
+      png_error(png_ptr, "Missing IHDR before fcTL");
+   }
+   else if (png_ptr->mode & PNG_HAVE_IDAT)
+   {
+      /* For any frames other then the first this message may be misleading,
+       * but correct. PNG_HAVE_IDAT is unset before the frame head is read.
+       * I can't think of a better message.
+       */
+      png_warning(png_ptr, "Ignoring invalid fcTL after IDAT");
+      png_crc_finish(png_ptr, length-4);
+      return;
+   }
+   else if (png_ptr->mode & PNG_HAVE_fcTL)
+   {
+      png_warning(png_ptr, "Ignoring duplicate fcTL within one frame");
+      png_crc_finish(png_ptr, length-4);
+      return;
+   }
+   else if (length != 26)
+   {
+      png_warning(png_ptr, "Ignoring fcTL with incorrect length");
+      png_crc_finish(png_ptr, length-4);
+      return;
+   }
+
+   png_crc_read(png_ptr, data, 22);
+   png_crc_finish(png_ptr, 0);
+
+   width = png_get_uint_31(png_ptr, data);
+   height = png_get_uint_31(png_ptr, data + 4);
+   x_offset = png_get_uint_31(png_ptr, data + 8);
+   y_offset = png_get_uint_31(png_ptr, data + 12);
+   delay_num = png_get_uint_16(data + 16);
+   delay_den = png_get_uint_16(data + 18);
+   dispose_op = data[20];
+   blend_op = data[21];
+
+   if (png_ptr->num_frames_read == 0 && (x_offset != 0 || y_offset != 0))
+   {
+      png_warning(png_ptr, "Ignoring leading fcTL with non-zero frame offset");
+      return;
+   }
+
+   if (info_ptr != NULL)
+   {
+      if (png_ptr->num_frames_read == 0 &&
+          (width != info_ptr->width || height != info_ptr->height))
+      {
+         png_warning(png_ptr,
+                     "Ignoring leading fcTL with incorrect frame size");
+         return;
+      }
+
+      /* The set function will do more error checking. */
+      png_set_next_frame_fcTL(png_ptr, info_ptr, width, height,
+                              x_offset, y_offset, delay_num, delay_den,
+                              dispose_op, blend_op);
+
+      png_read_reinit(png_ptr, info_ptr);
+
+      png_ptr->mode |= PNG_HAVE_fcTL;
+   }
+}
+
+void /* PRIVATE */
+png_have_info(png_structp png_ptr, png_infop info_ptr)
+{
+   if ((info_ptr->valid & PNG_INFO_acTL) && !(info_ptr->valid & PNG_INFO_fcTL))
+   {
+      png_ptr->apng_flags |= PNG_FIRST_FRAME_HIDDEN;
+      info_ptr->num_frames++;
+   }
+}
+
+void /* PRIVATE */
+png_handle_fdAT(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
+{
+   png_ensure_sequence_number(png_ptr, length);
+
+   /* This function is called only from png_read_end(), png_read_info(),
+    * and png_push_read_chunk(). This means one of the following:
+    * - The user doesn't want to read this frame.
+    * - This is an out-of-place fdAT.
+    * In either case, it is safe to ignore the chunk with a warning.
+    */
+   png_warning(png_ptr, "Ignoring fdAT chunk");
+   png_crc_finish(png_ptr, length - 4);
+   PNG_UNUSED(info_ptr)
+}
+
+void /* PRIVATE */
+png_ensure_sequence_number(png_structp png_ptr, png_uint_32 length)
+{
+   png_byte data[4];
+   png_uint_32 sequence_number;
+
+   if (length < 4)
+   {
+      /* TODO: Write a more precise message. */
+      png_error(png_ptr, "Invalid fcTL or fdAT chunk");
+   }
+
+   png_crc_read(png_ptr, data, 4);
+   sequence_number = png_get_uint_31(png_ptr, data);
+
+   if (sequence_number != png_ptr->next_seq_num)
+   {
+      /* TODO: Write a more precise message. */
+      png_error(png_ptr, "Out-of-order sequence number in fcTL or fdAT");
+   }
+
+   png_ptr->next_seq_num++;
+}
+#endif /* PNG_READ_APNG_SUPPORTED */
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
 /* Utility function for png_handle_unknown; set up png_ptr::unknown_chunk */
@@ -4149,27 +4329,15 @@ png_init_filter_functions(png_structrp pp)
       pp->read_filter[PNG_FILTER_VALUE_PAETH-1] =
          png_read_filter_row_paeth_multibyte_pixel;
 
-#ifdef PNG_FILTER_OPTIMIZATIONS
-   /* To use this define PNG_FILTER_OPTIMIZATIONS as the name of a function to
-    * call to install hardware optimizations for the above functions; simply
-    * replace whatever elements of the pp->read_filter[] array with a hardware
-    * specific (or, for that matter, generic) optimization.
-    *
-    * To see an example of this examine what configure.ac does when
-    * --enable-arm-neon is specified on the command line.
-    */
-   PNG_FILTER_OPTIMIZATIONS(pp, bpp);
-#endif
+#  ifdef PNG_TARGET_IMPLEMENTS_FILTERS
+      png_target_init_filter_functions(pp, bpp);
+#  endif
 }
 
 void /* PRIVATE */
 png_read_filter_row(png_structrp pp, png_row_infop row_info, png_bytep row,
     png_const_bytep prev_row, int filter)
 {
-   /* OPTIMIZATION: DO NOT MODIFY THIS FUNCTION, instead #define
-    * PNG_FILTER_OPTIMIZATIONS to a function that overrides the generic
-    * implementations.  See png_init_filter_functions above.
-    */
    if (filter > PNG_FILTER_VALUE_NONE && filter < PNG_FILTER_VALUE_LAST)
    {
       if (pp->read_filter[0] == NULL)
@@ -4200,7 +4368,38 @@ png_read_IDAT_data(png_structrp png_ptr, png_bytep output,
       {
          uInt avail_in;
          png_bytep buffer;
+#ifdef PNG_READ_APNG_SUPPORTED
+         png_uint_32 bytes_to_skip = 0;
 
+         while (png_ptr->idat_size == 0 || bytes_to_skip != 0)
+         {
+            png_crc_finish(png_ptr, bytes_to_skip);
+            bytes_to_skip = 0;
+
+            png_ptr->idat_size = png_read_chunk_header(png_ptr);
+            if (png_ptr->num_frames_read == 0)
+            {
+               if (png_ptr->chunk_name != png_IDAT)
+                  png_error(png_ptr, "Not enough image data");
+            }
+            else
+            {
+               if (png_ptr->chunk_name == png_IEND)
+                  png_error(png_ptr, "Not enough image data");
+               if (png_ptr->chunk_name != png_fdAT)
+               {
+                  png_warning(png_ptr,
+                              "Ignoring unexpected chunk in APNG sequence");
+                  bytes_to_skip = png_ptr->idat_size;
+                  continue;
+               }
+
+               png_ensure_sequence_number(png_ptr, png_ptr->idat_size);
+
+               png_ptr->idat_size -= 4;
+            }
+         }
+#else
          while (png_ptr->idat_size == 0)
          {
             png_crc_finish(png_ptr, 0);
@@ -4212,7 +4411,7 @@ png_read_IDAT_data(png_structrp png_ptr, png_bytep output,
             if (png_ptr->chunk_name != png_IDAT)
                png_error(png_ptr, "Not enough image data");
          }
-
+#endif /* PNG_READ_APNG_SUPPORTED */
          avail_in = png_ptr->IDAT_read_size;
 
          if (avail_in > png_chunk_max(png_ptr))
@@ -4283,6 +4482,9 @@ png_read_IDAT_data(png_structrp png_ptr, png_bytep output,
 
          png_ptr->mode |= PNG_AFTER_IDAT;
          png_ptr->flags |= PNG_FLAG_ZSTREAM_ENDED;
+#ifdef PNG_READ_APNG_SUPPORTED
+         png_ptr->num_frames_read++;
+#endif
 
          if (png_ptr->zstream.avail_in > 0 || png_ptr->idat_size > 0)
             png_chunk_benign_error(png_ptr, "Extra compressed data");
@@ -4626,7 +4828,7 @@ defined(PNG_USER_TRANSFORM_PTR_SUPPORTED)
 
       png_ptr->big_prev_row = (png_bytep)png_malloc(png_ptr, row_bytes + 48);
 
-#ifdef PNG_ALIGNED_MEMORY_SUPPORTED
+#if PNG_TARGET_ROW_ALIGNMENT > 1
       /* Use 16-byte aligned memory for row_buf with at least 16 bytes
        * of padding before and after row_buf; treat prev_row similarly.
        * NOTE: the alignment is to the start of the pixels, one beyond the start
@@ -4692,4 +4894,71 @@ defined(PNG_USER_TRANSFORM_PTR_SUPPORTED)
 
    png_ptr->flags |= PNG_FLAG_ROW_INIT;
 }
+
+#ifdef PNG_READ_APNG_SUPPORTED
+/* This function should be called after the main IDAT sequence has been read
+ * and before a new fdAT is about to be read. It resets some parts of png_ptr
+ * to make them usable by the read functions again.
+ */
+void /* PRIVATE */
+png_read_reset(png_structp png_ptr)
+{
+   png_ptr->mode &= ~PNG_HAVE_IDAT;
+   png_ptr->mode &= ~PNG_AFTER_IDAT;
+   png_ptr->row_number = 0;
+   png_ptr->pass = 0;
+}
+
+void /* PRIVATE */
+png_read_reinit(png_structp png_ptr, png_infop info_ptr)
+{
+   png_ptr->width = info_ptr->next_frame_width;
+   png_ptr->height = info_ptr->next_frame_height;
+   png_ptr->rowbytes = PNG_ROWBYTES(png_ptr->pixel_depth,png_ptr->width);
+   if (png_ptr->info_rowbytes != 0)
+      png_ptr->info_rowbytes = info_ptr->rowbytes =
+         PNG_ROWBYTES(info_ptr->pixel_depth, png_ptr->width);
+   if (png_ptr->prev_row)
+      memset(png_ptr->prev_row, 0, png_ptr->rowbytes + 1);
+}
+
+#ifdef PNG_PROGRESSIVE_READ_SUPPORTED
+/* Same as png_read_reset(), but for the progressive reader. */
+void /* PRIVATE */
+png_progressive_read_reset(png_structp png_ptr)
+{
+#ifdef PNG_READ_INTERLACING_SUPPORTED
+   /* Arrays to facilitate easy interlacing - use pass (0 - 6) as index */
+
+   if (png_ptr->interlaced)
+   {
+      if (!(png_ptr->transformations & PNG_INTERLACE))
+         png_ptr->num_rows = (png_ptr->height + png_pass_yinc[0] - 1 -
+                              png_pass_ystart[0]) /
+                             png_pass_yinc[0];
+      else
+         png_ptr->num_rows = png_ptr->height;
+
+      png_ptr->iwidth = (png_ptr->width +
+                         png_pass_inc[png_ptr->pass] - 1 -
+                         png_pass_start[png_ptr->pass]) /
+                        png_pass_inc[png_ptr->pass];
+   }
+   else
+#endif /* PNG_READ_INTERLACING_SUPPORTED */
+   {
+      png_ptr->num_rows = png_ptr->height;
+      png_ptr->iwidth = png_ptr->width;
+   }
+   png_ptr->flags &= ~PNG_FLAG_ZSTREAM_ENDED;
+   if (inflateReset(&(png_ptr->zstream)) != Z_OK)
+      png_error(png_ptr, "inflateReset failed");
+   png_ptr->zstream.avail_in = 0;
+   png_ptr->zstream.next_in = 0;
+   png_ptr->zstream.next_out = png_ptr->row_buf;
+   png_ptr->zstream.avail_out =
+      (uInt)PNG_ROWBYTES(png_ptr->pixel_depth, png_ptr->iwidth) + 1;
+}
+#endif /* PNG_PROGRESSIVE_READ_SUPPORTED */
+#endif /* PNG_READ_APNG_SUPPORTED */
 #endif /* READ */

@@ -20,7 +20,7 @@
 #if defined(PNG_READ_SUPPORTED) || defined(PNG_WRITE_SUPPORTED)
 
 #ifdef PNG_bKGD_SUPPORTED
-void PNGAPI
+void
 png_set_bKGD(png_const_structrp png_ptr, png_inforp info_ptr,
     png_const_color_16p background)
 {
@@ -35,7 +35,7 @@ png_set_bKGD(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_cHRM_SUPPORTED
-void PNGFAPI
+void
 png_set_cHRM_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
     png_fixed_point white_x, png_fixed_point white_y, png_fixed_point red_x,
     png_fixed_point red_y, png_fixed_point green_x, png_fixed_point green_y,
@@ -58,7 +58,7 @@ png_set_cHRM_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
    info_ptr->valid |= PNG_INFO_cHRM;
 }
 
-void PNGFAPI
+void
 png_set_cHRM_XYZ_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
     png_fixed_point int_red_X, png_fixed_point int_red_Y,
     png_fixed_point int_red_Z, png_fixed_point int_green_X,
@@ -95,7 +95,7 @@ png_set_cHRM_XYZ_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_cHRM(png_const_structrp png_ptr, png_inforp info_ptr,
     double white_x, double white_y, double red_x, double red_y,
     double green_x, double green_y, double blue_x, double blue_y)
@@ -111,7 +111,7 @@ png_set_cHRM(png_const_structrp png_ptr, png_inforp info_ptr,
        png_fixed(png_ptr, blue_y, "cHRM Blue Y"));
 }
 
-void PNGAPI
+void
 png_set_cHRM_XYZ(png_const_structrp png_ptr, png_inforp info_ptr, double red_X,
     double red_Y, double red_Z, double green_X, double green_Y, double green_Z,
     double blue_X, double blue_Y, double blue_Z)
@@ -132,7 +132,7 @@ png_set_cHRM_XYZ(png_const_structrp png_ptr, png_inforp info_ptr, double red_X,
 #endif /* cHRM */
 
 #ifdef PNG_cICP_SUPPORTED
-void PNGAPI
+void
 png_set_cICP(png_const_structrp png_ptr, png_inforp info_ptr,
              png_byte colour_primaries, png_byte transfer_function,
              png_byte matrix_coefficients, png_byte video_full_range_flag)
@@ -158,7 +158,7 @@ png_set_cICP(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif /* cICP */
 
 #ifdef PNG_cLLI_SUPPORTED
-void PNGFAPI
+void
 png_set_cLLI_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
     /* The values below are in cd/m2 (nits) and are scaled by 10,000; not
      * 100,000 as in the case of png_fixed_point.
@@ -190,7 +190,7 @@ png_set_cLLI_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_cLLI(png_const_structrp png_ptr, png_inforp info_ptr,
    double maxCLL, double maxFALL)
 {
@@ -221,7 +221,7 @@ png_ITU_fixed_16(int *error, png_fixed_point v)
    return (png_uint_16)/*SAFE*/v;
 }
 
-void PNGAPI
+void
 png_set_mDCV_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
     png_fixed_point white_x, png_fixed_point white_y,
     png_fixed_point red_x, png_fixed_point red_y,
@@ -293,7 +293,7 @@ png_set_mDCV_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_mDCV(png_const_structrp png_ptr, png_inforp info_ptr,
     double white_x, double white_y, double red_x, double red_y, double green_x,
     double green_y, double blue_x, double blue_y,
@@ -315,16 +315,7 @@ png_set_mDCV(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif /* mDCV */
 
 #ifdef PNG_eXIf_SUPPORTED
-void PNGAPI
-png_set_eXIf(png_const_structrp png_ptr, png_inforp info_ptr,
-    png_bytep exif)
-{
-  png_warning(png_ptr, "png_set_eXIf does not work; use png_set_eXIf_1");
-  PNG_UNUSED(info_ptr)
-  PNG_UNUSED(exif)
-}
-
-void PNGAPI
+void
 png_set_eXIf_1(png_const_structrp png_ptr, png_inforp info_ptr,
     png_uint_32 num_exif, png_bytep exif)
 {
@@ -356,7 +347,7 @@ png_set_eXIf_1(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif /* eXIf */
 
 #ifdef PNG_gAMA_SUPPORTED
-void PNGFAPI
+void
 png_set_gAMA_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
     png_fixed_point file_gamma)
 {
@@ -370,7 +361,7 @@ png_set_gAMA_fixed(png_const_structrp png_ptr, png_inforp info_ptr,
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_gAMA(png_const_structrp png_ptr, png_inforp info_ptr, double file_gamma)
 {
    png_set_gAMA_fixed(png_ptr, info_ptr, png_fixed(png_ptr, file_gamma,
@@ -380,7 +371,7 @@ png_set_gAMA(png_const_structrp png_ptr, png_inforp info_ptr, double file_gamma)
 #endif
 
 #ifdef PNG_hIST_SUPPORTED
-void PNGAPI
+void
 png_set_hIST(png_const_structrp png_ptr, png_inforp info_ptr,
     png_const_uint_16p hist)
 {
@@ -422,7 +413,7 @@ png_set_hIST(png_const_structrp png_ptr, png_inforp info_ptr,
 }
 #endif
 
-void PNGAPI
+void
 png_set_IHDR(png_const_structrp png_ptr, png_inforp info_ptr,
     png_uint_32 width, png_uint_32 height, int bit_depth,
     int color_type, int interlace_type, int compression_type,
@@ -460,10 +451,17 @@ png_set_IHDR(png_const_structrp png_ptr, png_inforp info_ptr,
    info_ptr->pixel_depth = (png_byte)(info_ptr->channels * info_ptr->bit_depth);
 
    info_ptr->rowbytes = PNG_ROWBYTES(info_ptr->pixel_depth, width);
+
+#ifdef PNG_APNG_SUPPORTED
+   /* Assume a non-animated PNG in the beginning. This may be overridden after
+    * seeing an acTL chunk later.
+    */
+   info_ptr->num_frames = 1;
+#endif
 }
 
 #ifdef PNG_oFFs_SUPPORTED
-void PNGAPI
+void
 png_set_oFFs(png_const_structrp png_ptr, png_inforp info_ptr,
     png_int_32 offset_x, png_int_32 offset_y, int unit_type)
 {
@@ -480,7 +478,7 @@ png_set_oFFs(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_pCAL_SUPPORTED
-void PNGAPI
+void
 png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
     png_const_charp purpose, png_int_32 X0, png_int_32 X1, int type,
     int nparams, png_const_charp units, png_charpp params)
@@ -596,7 +594,7 @@ png_set_pCAL(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_sCAL_SUPPORTED
-void PNGAPI
+void
 png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr,
     int unit, png_const_charp swidth, png_const_charp sheight)
 {
@@ -662,7 +660,7 @@ png_set_sCAL_s(png_const_structrp png_ptr, png_inforp info_ptr,
 }
 
 #  ifdef PNG_FLOATING_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_sCAL(png_const_structrp png_ptr, png_inforp info_ptr, int unit,
     double width, double height)
 {
@@ -692,7 +690,7 @@ png_set_sCAL(png_const_structrp png_ptr, png_inforp info_ptr, int unit,
 #  endif
 
 #  ifdef PNG_FIXED_POINT_SUPPORTED
-void PNGAPI
+void
 png_set_sCAL_fixed(png_const_structrp png_ptr, png_inforp info_ptr, int unit,
     png_fixed_point width, png_fixed_point height)
 {
@@ -721,7 +719,7 @@ png_set_sCAL_fixed(png_const_structrp png_ptr, png_inforp info_ptr, int unit,
 #endif
 
 #ifdef PNG_pHYs_SUPPORTED
-void PNGAPI
+void
 png_set_pHYs(png_const_structrp png_ptr, png_inforp info_ptr,
     png_uint_32 res_x, png_uint_32 res_y, int unit_type)
 {
@@ -737,7 +735,7 @@ png_set_pHYs(png_const_structrp png_ptr, png_inforp info_ptr,
 }
 #endif
 
-void PNGAPI
+void
 png_set_PLTE(png_structrp png_ptr, png_inforp info_ptr,
     png_const_colorp palette, int num_palette)
 {
@@ -802,7 +800,7 @@ png_set_PLTE(png_structrp png_ptr, png_inforp info_ptr,
 }
 
 #ifdef PNG_sBIT_SUPPORTED
-void PNGAPI
+void
 png_set_sBIT(png_const_structrp png_ptr, png_inforp info_ptr,
     png_const_color_8p sig_bit)
 {
@@ -817,7 +815,7 @@ png_set_sBIT(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_sRGB_SUPPORTED
-void PNGAPI
+void
 png_set_sRGB(png_const_structrp png_ptr, png_inforp info_ptr, int srgb_intent)
 {
    png_debug1(1, "in %s storage function", "sRGB");
@@ -829,7 +827,7 @@ png_set_sRGB(png_const_structrp png_ptr, png_inforp info_ptr, int srgb_intent)
    info_ptr->valid |= PNG_INFO_sRGB;
 }
 
-void PNGAPI
+void
 png_set_sRGB_gAMA_and_cHRM(png_const_structrp png_ptr, png_inforp info_ptr,
     int srgb_intent)
 {
@@ -857,7 +855,7 @@ png_set_sRGB_gAMA_and_cHRM(png_const_structrp png_ptr, png_inforp info_ptr,
 
 
 #ifdef PNG_iCCP_SUPPORTED
-void PNGAPI
+void
 png_set_iCCP(png_const_structrp png_ptr, png_inforp info_ptr,
     png_const_charp name, int compression_type,
     png_const_bytep profile, png_uint_32 proflen)
@@ -910,7 +908,7 @@ png_set_iCCP(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_TEXT_SUPPORTED
-void PNGAPI
+void
 png_set_text(png_const_structrp png_ptr, png_inforp info_ptr,
     png_const_textp text_ptr, int num_text)
 {
@@ -1116,7 +1114,7 @@ png_set_text_2(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_tIME_SUPPORTED
-void PNGAPI
+void
 png_set_tIME(png_const_structrp png_ptr, png_inforp info_ptr,
     png_const_timep mod_time)
 {
@@ -1142,7 +1140,7 @@ png_set_tIME(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_tRNS_SUPPORTED
-void PNGAPI
+void
 png_set_tRNS(png_structrp png_ptr, png_inforp info_ptr,
     png_const_bytep trans_alpha, int num_trans, png_const_color_16p trans_color)
 {
@@ -1213,7 +1211,7 @@ png_set_tRNS(png_structrp png_ptr, png_inforp info_ptr,
 #endif
 
 #ifdef PNG_sPLT_SUPPORTED
-void PNGAPI
+void
 png_set_sPLT(png_const_structrp png_ptr,
     png_inforp info_ptr, png_const_sPLT_tp entries, int nentries)
 /*
@@ -1315,6 +1313,144 @@ png_set_sPLT(png_const_structrp png_ptr,
 }
 #endif /* sPLT */
 
+#ifdef PNG_APNG_SUPPORTED
+png_uint_32 PNGAPI
+png_set_acTL(png_structp png_ptr, png_infop info_ptr,
+             png_uint_32 num_frames, png_uint_32 num_plays)
+{
+   png_debug1(1, "in %s storage function", "acTL");
+
+   if (png_ptr == NULL || info_ptr == NULL)
+   {
+      png_warning(png_ptr,
+                  "Ignoring call to png_set_acTL with NULL libpng object args");
+      return 0;
+   }
+   if (num_frames == 0)
+   {
+      png_warning(png_ptr,
+                  "Ignoring attempt to set acTL with num_frames zero");
+      return 0;
+   }
+   if (num_frames > PNG_UINT_31_MAX)
+   {
+      png_warning(png_ptr,
+                  "Ignoring attempt to set acTL with num_frames > 2^31-1");
+      return 0;
+   }
+   if (num_plays > PNG_UINT_31_MAX)
+   {
+      png_warning(png_ptr,
+                  "Ignoring attempt to set acTL with num_plays > 2^31-1");
+      return 0;
+   }
+
+   info_ptr->num_frames = num_frames;
+   info_ptr->num_plays = num_plays;
+
+   info_ptr->valid |= PNG_INFO_acTL;
+
+   return 1;
+}
+
+png_uint_32 PNGAPI
+png_set_next_frame_fcTL(png_structp png_ptr, png_infop info_ptr,
+                        png_uint_32 width, png_uint_32 height,
+                        png_uint_32 x_offset, png_uint_32 y_offset,
+                        png_uint_16 delay_num, png_uint_16 delay_den,
+                        png_byte dispose_op, png_byte blend_op)
+{
+   png_debug1(1, "in %s storage function", "fcTL");
+
+   if (png_ptr == NULL || info_ptr == NULL)
+   {
+      png_warning(png_ptr,
+                  "Ignoring call to png_set_fcTL with NULL libpng object args");
+      return 0;
+   }
+
+   png_ensure_fcTL_is_valid(png_ptr, width, height, x_offset, y_offset,
+                            delay_num, delay_den, dispose_op, blend_op);
+
+   /* No checking is required for delay_num and delay_den.
+    * They can hold any 16-bit value, including zero.
+    */
+
+   if (blend_op == PNG_fcTL_BLEND_OP_OVER)
+   {
+      if (!(png_ptr->color_type & PNG_COLOR_MASK_ALPHA) &&
+          !(png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)))
+      {
+         png_warning(png_ptr,
+                     "Ignoring wasteful fcTL BLEND_OP_OVER in opaque images");
+         blend_op = PNG_fcTL_BLEND_OP_SOURCE;
+      }
+   }
+
+   info_ptr->next_frame_width = width;
+   info_ptr->next_frame_height = height;
+   info_ptr->next_frame_x_offset = x_offset;
+   info_ptr->next_frame_y_offset = y_offset;
+   info_ptr->next_frame_delay_num = delay_num;
+   info_ptr->next_frame_delay_den = delay_den;
+   info_ptr->next_frame_dispose_op = dispose_op;
+   info_ptr->next_frame_blend_op = blend_op;
+
+   info_ptr->valid |= PNG_INFO_fcTL;
+
+   return 1;
+}
+
+void /* PRIVATE */
+png_ensure_fcTL_is_valid(png_structp png_ptr,
+                         png_uint_32 width, png_uint_32 height,
+                         png_uint_32 x_offset, png_uint_32 y_offset,
+                         png_uint_16 delay_num, png_uint_16 delay_den,
+                         png_byte dispose_op, png_byte blend_op)
+{
+   if (width == 0 || width > PNG_UINT_31_MAX)
+      png_error(png_ptr, "Invalid frame width in fcTL");
+   if (height == 0 || height > PNG_UINT_31_MAX)
+      png_error(png_ptr, "Invalid frame height in fcTL");
+   if (x_offset > PNG_UINT_31_MAX || y_offset > PNG_UINT_31_MAX)
+      png_error(png_ptr, "Invalid frame offset in fcTL");
+   if (width + x_offset > png_ptr->first_frame_width ||
+       height + y_offset > png_ptr->first_frame_height)
+      png_error(png_ptr, "Oversized frame in fcTL");
+
+   if (dispose_op != PNG_fcTL_DISPOSE_OP_NONE &&
+       dispose_op != PNG_fcTL_DISPOSE_OP_BACKGROUND &&
+       dispose_op != PNG_fcTL_DISPOSE_OP_PREVIOUS)
+      png_error(png_ptr, "Invalid dispose_op in fcTL");
+
+   if (blend_op != PNG_fcTL_BLEND_OP_SOURCE &&
+       blend_op != PNG_fcTL_BLEND_OP_OVER)
+      png_error(png_ptr, "Invalid blend_op in fcTL");
+
+   PNG_UNUSED(delay_num)
+   PNG_UNUSED(delay_den)
+}
+
+png_uint_32 PNGAPI
+png_set_first_frame_is_hidden(png_structp png_ptr, png_infop info_ptr,
+                              png_byte is_hidden)
+{
+   png_debug(1, "in png_first_frame_is_hidden");
+
+   if (png_ptr == NULL)
+      return 0;
+
+   if (is_hidden)
+      png_ptr->apng_flags |= PNG_FIRST_FRAME_HIDDEN;
+   else
+      png_ptr->apng_flags &= ~PNG_FIRST_FRAME_HIDDEN;
+
+   PNG_UNUSED(info_ptr)
+
+   return 1;
+}
+#endif /* PNG_APNG_SUPPORTED */
+
 #ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
 static png_byte
 check_location(png_const_structrp png_ptr, int location)
@@ -1353,7 +1489,7 @@ check_location(png_const_structrp png_ptr, int location)
    return (png_byte)location;
 }
 
-void PNGAPI
+void
 png_set_unknown_chunks(png_const_structrp png_ptr,
     png_inforp info_ptr, png_const_unknown_chunkp unknowns, int num_unknowns)
 {
@@ -1452,7 +1588,7 @@ png_set_unknown_chunks(png_const_structrp png_ptr,
    }
 }
 
-void PNGAPI
+void
 png_set_unknown_chunk_location(png_const_structrp png_ptr, png_inforp info_ptr,
     int chunk, int location)
 {
@@ -1482,7 +1618,7 @@ png_set_unknown_chunk_location(png_const_structrp png_ptr, png_inforp info_ptr,
 #endif /* STORE_UNKNOWN_CHUNKS */
 
 #ifdef PNG_MNG_FEATURES_SUPPORTED
-png_uint_32 PNGAPI
+png_uint_32
 png_permit_mng_features(png_structrp png_ptr, png_uint_32 mng_features)
 {
    png_debug(1, "in png_permit_mng_features");
@@ -1525,7 +1661,7 @@ add_one_chunk(png_bytep list, unsigned int count, png_const_bytep add, int keep)
    return count;
 }
 
-void PNGAPI
+void
 png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
     png_const_bytep chunk_list, int num_chunks_in)
 {
@@ -1557,11 +1693,14 @@ png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
        * libpng except for IHDR, PLTE, tRNS, IDAT, and IEND
        */
       static const png_byte chunks_to_ignore[] = {
+         97,  99,  84,  76, '\0',  /* acTL */
          98,  75,  71,  68, '\0',  /* bKGD */
          99,  72,  82,  77, '\0',  /* cHRM */
          99,  73,  67,  80, '\0',  /* cICP */
          99,  76,  76,  73, '\0',  /* cLLI */
         101,  88,  73, 102, '\0',  /* eXIf */
+        102,  99,  84,  76, '\0',  /* fcTL */
+        102, 100,  65,  84, '\0',  /* fdAT */
         103,  65,  77,  65, '\0',  /* gAMA */
         104,  73,  83,  84, '\0',  /* hIST */
         105,  67,  67,  80, '\0',  /* iCCP */
@@ -1687,7 +1826,7 @@ png_set_keep_unknown_chunks(png_structrp png_ptr, int keep,
 #endif
 
 #ifdef PNG_READ_USER_CHUNKS_SUPPORTED
-void PNGAPI
+void
 png_set_read_user_chunk_fn(png_structrp png_ptr, png_voidp user_chunk_ptr,
     png_user_chunk_ptr read_user_chunk_fn)
 {
@@ -1702,7 +1841,7 @@ png_set_read_user_chunk_fn(png_structrp png_ptr, png_voidp user_chunk_ptr,
 #endif
 
 #ifdef PNG_INFO_IMAGE_SUPPORTED
-void PNGAPI
+void
 png_set_rows(png_const_structrp png_ptr, png_inforp info_ptr,
     png_bytepp row_pointers)
 {
@@ -1722,7 +1861,7 @@ png_set_rows(png_const_structrp png_ptr, png_inforp info_ptr,
 }
 #endif
 
-void PNGAPI
+void
 png_set_compression_buffer_size(png_structrp png_ptr, size_t size)
 {
    png_debug(1, "in png_set_compression_buffer_size");
@@ -1784,7 +1923,7 @@ png_set_compression_buffer_size(png_structrp png_ptr, size_t size)
 #  endif
 }
 
-void PNGAPI
+void
 png_set_invalid(png_const_structrp png_ptr, png_inforp info_ptr, int mask)
 {
    if (png_ptr != NULL && info_ptr != NULL)
@@ -1794,7 +1933,7 @@ png_set_invalid(png_const_structrp png_ptr, png_inforp info_ptr, int mask)
 
 #ifdef PNG_SET_USER_LIMITS_SUPPORTED
 /* This function was added to libpng 1.2.6 */
-void PNGAPI
+void
 png_set_user_limits(png_structrp png_ptr, png_uint_32 user_width_max,
     png_uint_32 user_height_max)
 {
@@ -1812,7 +1951,7 @@ png_set_user_limits(png_structrp png_ptr, png_uint_32 user_width_max,
 }
 
 /* This function was added to libpng 1.4.0 */
-void PNGAPI
+void
 png_set_chunk_cache_max(png_structrp png_ptr, png_uint_32 user_chunk_cache_max)
 {
    png_debug(1, "in png_set_chunk_cache_max");
@@ -1822,7 +1961,7 @@ png_set_chunk_cache_max(png_structrp png_ptr, png_uint_32 user_chunk_cache_max)
 }
 
 /* This function was added to libpng 1.4.1 */
-void PNGAPI
+void
 png_set_chunk_malloc_max(png_structrp png_ptr,
     png_alloc_size_t user_chunk_malloc_max)
 {
@@ -1851,7 +1990,7 @@ png_set_chunk_malloc_max(png_structrp png_ptr,
 
 
 #ifdef PNG_BENIGN_ERRORS_SUPPORTED
-void PNGAPI
+void
 png_set_benign_errors(png_structrp png_ptr, int allowed)
 {
    png_debug(1, "in png_set_benign_errors");
@@ -1881,7 +2020,7 @@ png_set_benign_errors(png_structrp png_ptr, int allowed)
     * (opaque black).  By default, when this occurs libpng will issue
     * a benign error.  This API can be used to override that behavior.
     */
-void PNGAPI
+void
 png_set_check_for_invalid_index(png_structrp png_ptr, int allowed)
 {
    png_debug(1, "in png_set_check_for_invalid_index");

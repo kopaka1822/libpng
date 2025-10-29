@@ -45,8 +45,9 @@ png_destroy_png_struct(png_structrp png_ptr)
  * need to allocate exactly 64K, so whatever you call here must
  * have the ability to do that.
  */
-PNG_FUNCTION(png_voidp,PNGAPI
-png_calloc,(png_const_structrp png_ptr, png_alloc_size_t size),PNG_ALLOCATED)
+PNG_FUNCTION(png_voidp,
+png_calloc,(png_const_structrp png_ptr, png_alloc_size_t size),
+    PNG_ALLOCATED)
 {
    png_voidp ret;
 
@@ -118,7 +119,8 @@ png_malloc_array_checked(png_const_structrp png_ptr, int nelements,
 
 PNG_FUNCTION(png_voidp /* PRIVATE */,
 png_malloc_array,(png_const_structrp png_ptr, int nelements,
-    size_t element_size),PNG_ALLOCATED)
+    size_t element_size),
+    PNG_ALLOCATED)
 {
    if (nelements <= 0 || element_size == 0)
       png_error(png_ptr, "internal error: array alloc");
@@ -128,7 +130,8 @@ png_malloc_array,(png_const_structrp png_ptr, int nelements,
 
 PNG_FUNCTION(png_voidp /* PRIVATE */,
 png_realloc_array,(png_const_structrp png_ptr, png_const_voidp old_array,
-    int old_elements, int add_elements, size_t element_size),PNG_ALLOCATED)
+    int old_elements, int add_elements, size_t element_size),
+    PNG_ALLOCATED)
 {
    /* These are internal errors: */
    if (add_elements <= 0 || element_size == 0 || old_elements < 0 ||
@@ -166,8 +169,9 @@ png_realloc_array,(png_const_structrp png_ptr, png_const_voidp old_array,
  * png_malloc always exists, but if PNG_USER_MEM_SUPPORTED is defined a separate
  * function png_malloc_default is also provided.
  */
-PNG_FUNCTION(png_voidp,PNGAPI
-png_malloc,(png_const_structrp png_ptr, png_alloc_size_t size),PNG_ALLOCATED)
+PNG_FUNCTION(png_voidp,
+png_malloc,(png_const_structrp png_ptr, png_alloc_size_t size),
+    PNG_ALLOCATED)
 {
    png_voidp ret;
 
@@ -183,7 +187,7 @@ png_malloc,(png_const_structrp png_ptr, png_alloc_size_t size),PNG_ALLOCATED)
 }
 
 #ifdef PNG_USER_MEM_SUPPORTED
-PNG_FUNCTION(png_voidp,PNGAPI
+PNG_FUNCTION(png_voidp,
 png_malloc_default,(png_const_structrp png_ptr, png_alloc_size_t size),
     PNG_ALLOCATED PNG_DEPRECATED)
 {
@@ -206,7 +210,7 @@ png_malloc_default,(png_const_structrp png_ptr, png_alloc_size_t size),
  * function will issue a png_warning and return NULL instead of issuing a
  * png_error, if it fails to allocate the requested memory.
  */
-PNG_FUNCTION(png_voidp,PNGAPI
+PNG_FUNCTION(png_voidp,
 png_malloc_warn,(png_const_structrp png_ptr, png_alloc_size_t size),
     PNG_ALLOCATED)
 {
@@ -226,7 +230,7 @@ png_malloc_warn,(png_const_structrp png_ptr, png_alloc_size_t size),
 /* Free a pointer allocated by png_malloc().  If ptr is NULL, return
  * without taking any action.
  */
-void PNGAPI
+void
 png_free(png_const_structrp png_ptr, png_voidp ptr)
 {
    if (png_ptr == NULL || ptr == NULL)
@@ -240,8 +244,9 @@ png_free(png_const_structrp png_ptr, png_voidp ptr)
       png_free_default(png_ptr, ptr);
 }
 
-PNG_FUNCTION(void,PNGAPI
-png_free_default,(png_const_structrp png_ptr, png_voidp ptr),PNG_DEPRECATED)
+PNG_FUNCTION(void,
+png_free_default,(png_const_structrp png_ptr, png_voidp ptr),
+    PNG_DEPRECATED)
 {
    if (png_ptr == NULL || ptr == NULL)
       return;
@@ -254,9 +259,9 @@ png_free_default,(png_const_structrp png_ptr, png_voidp ptr),PNG_DEPRECATED)
 /* This function is called when the application wants to use another method
  * of allocating and freeing memory.
  */
-void PNGAPI
-png_set_mem_fn(png_structrp png_ptr, png_voidp mem_ptr, png_malloc_ptr
-  malloc_fn, png_free_ptr free_fn)
+void
+png_set_mem_fn(png_structrp png_ptr, png_voidp mem_ptr,
+    png_malloc_ptr malloc_fn, png_free_ptr free_fn)
 {
    if (png_ptr != NULL)
    {
@@ -270,7 +275,7 @@ png_set_mem_fn(png_structrp png_ptr, png_voidp mem_ptr, png_malloc_ptr
  * functions.  The application should free any memory associated with this
  * pointer before png_write_destroy and png_read_destroy are called.
  */
-png_voidp PNGAPI
+png_voidp
 png_get_mem_ptr(png_const_structrp png_ptr)
 {
    if (png_ptr == NULL)

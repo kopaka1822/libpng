@@ -59,7 +59,8 @@ typedef struct png_compression_buffer
 {
    struct png_compression_buffer *next;
    png_byte                       output[1]; /* actually zbuf_size */
-} png_compression_buffer, *png_compression_bufferp;
+} png_compression_buffer;
+typedef png_compression_buffer *png_compression_bufferp; /* [Deprecated] */
 
 #define PNG_COMPRESSION_BUFFER_SIZE(pp)\
    (offsetof(png_compression_buffer, output) + (pp)->zbuffer_size)
@@ -333,16 +334,7 @@ struct png_struct_def
 #endif
 
 /* Options */
-#ifdef PNG_SET_OPTION_SUPPORTED
    png_uint_32 options;           /* On/off state (up to 16 options) */
-#endif
-
-#if PNG_LIBPNG_VER < 10700
-/* To do: remove this from libpng-1.7 */
-#ifdef PNG_TIME_RFC1123_SUPPORTED
-   char time_buffer[29]; /* String to hold RFC 1123 time text */
-#endif /* TIME_RFC1123 */
-#endif /* LIBPNG_VER < 10700 */
 
 /* New members added in libpng-1.0.6 */
 
@@ -373,13 +365,6 @@ struct png_struct_def
    /* deleted in 1.5.5: rgb_to_gray_blue_coeff; */
 #endif
 
-/* New member added in libpng-1.6.36 */
-#if defined(PNG_READ_EXPAND_SUPPORTED) && \
-    (defined(PNG_ARM_NEON_IMPLEMENTATION) || \
-     defined(PNG_RISCV_RVV_IMPLEMENTATION))
-   png_bytep riffled_palette; /* buffer for accelerated palette expansion */
-#endif
-
 /* New member added in libpng-1.0.4 (renamed in 1.0.9) */
 #if defined(PNG_MNG_FEATURES_SUPPORTED)
 /* Changed from png_byte to png_uint_32 at version 1.2.0 */
@@ -390,6 +375,27 @@ struct png_struct_def
 #ifdef PNG_MNG_FEATURES_SUPPORTED
    png_byte filter_type;
 #endif
+
+#ifdef PNG_APNG_SUPPORTED
+   png_uint_32 apng_flags;
+   png_uint_32 next_seq_num;         /* next fcTL/fdAT chunk sequence number */
+   png_uint_32 first_frame_width;
+   png_uint_32 first_frame_height;
+
+#ifdef PNG_READ_APNG_SUPPORTED
+   png_uint_32 num_frames_read;      /* incremented after all image data of */
+                                     /* a frame is read */
+#ifdef PNG_PROGRESSIVE_READ_SUPPORTED
+   png_progressive_frame_ptr frame_info_fn; /* frame info read callback */
+   png_progressive_frame_ptr frame_end_fn;  /* frame data read callback */
+#endif
+#endif
+
+#ifdef PNG_WRITE_APNG_SUPPORTED
+   png_uint_32 num_frames_to_write;
+   png_uint_32 num_frames_written;
+#endif
+#endif /* PNG_APNG_SUPPORTED */
 
 /* New members added in libpng-1.2.0 */
 
@@ -461,5 +467,18 @@ struct png_struct_def
 /* New member added in libpng-1.5.7 */
    void (*read_filter[PNG_FILTER_VALUE_LAST-1])(png_row_infop row_info,
       png_bytep row, png_const_bytep prev_row);
+
+/* NOTE: prior to libpng-1.8 this also checked that PNG_ARM_NEON_IMPLEMENTATION
+ * is defined, however it was always defined...  The code also checked that
+ * READ_EXPAND is supported but that will lead to bugs when some hardware
+ * implementation uses it for some other palette related thing.
+ * [[libpng-1.8]] changed to target_data for storing arbitrary data.
+ */
+#ifdef PNG_TARGET_CODE_IMPLEMENTATION /* file providing target specific code */
+#  ifdef PNG_TARGET_STORES_DATA
+      png_voidp   target_data;
+#  endif
+   png_uint_32 target_state; /* managed by libpng */
+#endif
 };
 #endif /* PNGSTRUCT_H */
